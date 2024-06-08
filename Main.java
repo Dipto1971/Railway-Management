@@ -424,7 +424,7 @@ public class Main {
     // Adding newly updated booking List in a text file
     private static void updateBookingFile() {
         try {
-            FileWriter writer = new FileWriter("bookings.txt");
+            FileWriter writer = new FileWriter("bookings.txt", true);
             for (Booking booking : bookings) {
                 writer.write(booking.train.id + "," + booking.from + "," + booking.to + "," + booking.date + "," + booking.passengerName + "," + booking.gender + "," + booking.seat + "," + booking.paymentInfo + "\n");
             }
