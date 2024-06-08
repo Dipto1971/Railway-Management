@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
@@ -37,20 +39,23 @@ class Train {
 }
 
 class Booking {
+    // OOP concept: here 
     Train train;
     String from;
     String to;
     String date;
     String passengerName;
+    String gender;
     String seat;
     String paymentInfo;
 
-    Booking(Train train, String from, String to, String date, String passengerName, String seat, String paymentInfo) {
+    Booking(Train train, String from, String to, String date, String passengerName, String gender, String seat, String paymentInfo) {
         this.train = train;
         this.from = from;
         this.to = to;
         this.date = date;
         this.passengerName = passengerName;
+        this.gender = gender;
         this.seat = seat;
         this.paymentInfo = paymentInfo;
     }
@@ -155,6 +160,7 @@ public class Main {
         trains.put("777", beachExpress);
     }
 
+    // Page 1: Welcome Page
     private static void createWelcomePage() {
         JFrame welcomeFrame = new JFrame("Welcome Page");
         welcomeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -177,6 +183,7 @@ public class Main {
         welcomeFrame.setVisible(true);
     }
 
+    // Page 2: Login Page
     private static void createLoginPage() {
         JFrame loginFrame = new JFrame("Login Page");
         loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -225,9 +232,10 @@ public class Main {
     }
 
     private static boolean isValidLogin(String username, String password) {
-        return "tasnia".equals(username) && "tasnia1234".equals(password);
+        return "admin".equals(username) && "admin".equals(password);
     }
 
+    // Page 3: Search Page
     private static void createSearchPage() {
         JFrame searchFrame = new JFrame("Search Trains");
         searchFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -274,6 +282,7 @@ public class Main {
         searchFrame.setVisible(true);
     }
 
+    // Page 4: Train List Page
     private static void createTrainListPage() {
         JFrame trainListFrame = new JFrame("Train List");
         trainListFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -330,6 +339,7 @@ public class Main {
     return trainData.toArray(new String[0][0]);
 }
 
+    // Page 5: Booking Page
     private static void createBookingPage() {
         JFrame bookingFrame = new JFrame("Booking Details");
         bookingFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -355,16 +365,46 @@ public class Main {
         JTextField paymentField = new JTextField();
         paymentField.setBounds(140, 200, 200, 30);
 
+        // Gender selection option using radio buttons
+        JRadioButton maleButton = new JRadioButton ("Male");
+        JRadioButton femaleButton = new JRadioButton("Female");
+
+        JLabel messageLabel = new JLabel("");
+        messageLabel.setBounds(150, 400, 500, 30);
+        
+        maleButton.setBounds(60, 250, 100, 30);
+        femaleButton.setBounds(160, 250, 100, 30);
+
         JButton confirmButton = new JButton("Confirm");
         confirmButton.setBounds(175, 300, 100, 30);
+
         confirmButton.addActionListener(e -> {
             String passengerName = nameField.getText();
             String seat = seatField.getText();
             String paymentInfo = paymentField.getText();
-            Booking booking = new Booking(selectedTrain, fromStation, toStation, travelDate, passengerName, seat, paymentInfo);
+            String gender = "";
+            if (maleButton.isSelected()) {
+                gender = "Male";
+            } else if (femaleButton.isSelected()) {
+                gender = "Female";
+            }
+            Booking booking = new Booking(selectedTrain, fromStation, toStation, travelDate, passengerName, gender, seat, paymentInfo);
             bookings.add(booking);
+            updateBookingFile();
             bookingFrame.dispose();
             createThankYouPage(booking);
+        });
+
+        maleButton.addActionListener(e -> {
+            if (maleButton.isSelected()) {
+                femaleButton.setSelected(false);
+            }
+        });
+
+        femaleButton.addActionListener(e -> {
+            if (femaleButton.isSelected()) {
+                maleButton.setSelected(false);
+            }
         });
 
         bookingFrame.add(headerLabel);
@@ -375,9 +415,26 @@ public class Main {
         bookingFrame.add(paymentLabel);
         bookingFrame.add(paymentField);
         bookingFrame.add(confirmButton);
+        bookingFrame.add(maleButton);
+        bookingFrame.add(femaleButton);
+        bookingFrame.add(messageLabel);
         bookingFrame.setVisible(true);
     }
 
+    // Adding newly updated booking List in a text file
+    private static void updateBookingFile() {
+        try {
+            FileWriter writer = new FileWriter("bookings.txt");
+            for (Booking booking : bookings) {
+                writer.write(booking.train.id + "," + booking.from + "," + booking.to + "," + booking.date + "," + booking.passengerName + "," + booking.gender + "," + booking.seat + "," + booking.paymentInfo + "\n");
+            }
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Page 6: Thank You Page
     private static void createThankYouPage(Booking booking) {
         JFrame thankYouFrame = new JFrame("Thank You");
         thankYouFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -394,6 +451,7 @@ public class Main {
                 + "To: " + booking.to + "<br>"
                 + "Date: " + booking.date + "<br>"
                 + "Passenger: " + booking.passengerName + "<br>"
+                + "Gender: " + booking.gender + "<br>"
                 + "Seat: " + booking.seat + "<br>"
                 + "Payment: " + booking.paymentInfo + "</html>", SwingConstants.CENTER);
         bookingDetailsLabel.setBounds(35, 200, 400, 200);
